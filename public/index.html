@@ -50,7 +50,7 @@
         <div class="api-endpoint">
             <h2>Register a Bot</h2>
             <p><strong>POST</strong> <code>/api/register-bot</code></p>
-            <pre><code>curl -X POST https://kord-ai-db.vercel.app/api/register-bot \
+            <pre><code>curl -X POST /api/register-bot \
 -H "Content-Type: application/json" \
 -d '{"ownerName": "JohnDoe", "ownerNumber": "1234567890", "botName": "ChatBot", "botType": "Chatbot"}'</code></pre>
             <h3>Parameters:</h3>
@@ -65,7 +65,7 @@
         <div class="api-endpoint">
             <h2>Register a Bot (GET)</h2>
             <p><strong>GET</strong> <code>/api/register-bot</code></p>
-            <pre><code>curl "https://kord-ai-db.vercel.app/api/register-bot?ownerName=JohnDoe&ownerNumber=1234567890&botName=ChatBot&botType=Chatbot"</code></pre>
+            <pre><code>curl "/api/register-bot?ownerName=JohnDoe&ownerNumber=1234567890&botName=ChatBot&botType=Chatbot"</code></pre>
             <h3>Parameters:</h3>
             <ul>
                 <li><label>ownerName:</label> The name of the bot owner.</li>
@@ -78,7 +78,7 @@
         <div class="api-endpoint">
             <h2>Retrieve Bot Information</h2>
             <p><strong>GET</strong> <code>/api/get-bot</code></p>
-            <pre><code>curl "https://kord-ai-db.vercel.app/api/get-bot?Name=JohnDoe&Number=1234567890"</code></pre>
+            <pre><code>curl "/api/get-bot?Name=JohnDoe&Number=1234567890"</code></pre>
             <h3>Parameters:</h3>
             <ul>
                 <li><label>Name:</label> The name of the bot owner.</li>
