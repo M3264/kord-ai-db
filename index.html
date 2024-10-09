@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kord AI Registration API Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8, #c9d6e5);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-top: 30px;
+        }
+        pre {
+            background: #f8f8f8;
+            padding: 10px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            background: #eaeaea;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .note {
+            background: #eafaf1;
+            color: #27ae60;
+            padding: 10px;
+            border-left: 4px solid #2ecc71;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Kord AI Registration API</h1>
+
+        <h2>API Overview</h2>
+        <p>This API allows you to register bots and retrieve their information. Below are the endpoints available for use.</p>
+
+        <h2>Endpoints</h2>
+
+        <h3>1. Register a Bot</h3>
+        <p><strong>POST</strong> <code>/api/register-bot</code></p>
+        <p>This endpoint is used to register a new bot.</p>
+        <h4>Request Body:</h4>
+        <pre><code>{
+  "ownerName": "John Doe",
+  "ownerNumber": "1234567890",
+  "botName": "ChatBot",
+  "botType": "Chatbot"
+}</code></pre>
+        <h4>Response:</h4>
+        <pre><code>{
+  "message": "Bot registered successfully"
+}</code></pre>
+
+        <h3>2. Retrieve a Bot</h3>
+        <p><strong>GET</strong> <code>/api/register-bot?Name=John%20Doe&Number=1234567890</code></p>
+        <p>This endpoint retrieves information about a registered bot.</p>
+        <h4>Query Parameters:</h4>
+        <ul>
+            <li><code>Name</code>: The name of the bot owner.</li>
+            <li><code>Number</code>: The phone number of the bot owner.</li>
+        </ul>
+        <h4>Response:</h4>
+        <pre><code>{
+  "message": "Bot found",
+  "bot": {
+    "ownerName": "John Doe",
+    "ownerNumber": "1234567890",
+    "botName": "ChatBot",
+    "botType": "Chatbot"
+  }
+}</code></pre>
+
+        <div class="note">
+            <strong>Note:</strong> Ensure that all required fields are filled out when making requests.
+        </div>
+
+        <h2>Usage Example</h2>
+        <p>You can use tools like <strong>Postman</strong> or <strong>curl</strong> to interact with the API.</p>
+        <h4>Example Using curl:</h4>
+        <pre><code>curl -X POST http://localhost:3000/api/register-bot \
+-H "Content-Type: application/json" \
+-d '{"ownerName": "John Doe", "ownerNumber": "1234567890", "botName": "ChatBot", "botType": "Chatbot"}'</code></pre>
+    </div>
+
+</body>
+</html>
