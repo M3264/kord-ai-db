@@ -1,12 +1,16 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
 const path = require('path');
 
 // Initialize Firebase Admin SDK
-const serviceAccount = require('./config/kordai-db.json'); // Replace with your credentials file
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+  }),
 });
 
 const db = admin.firestore();
@@ -16,16 +20,19 @@ const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public'
+app.use(express.static(path.join(__dirname, 'public')));
 
-// API endpoint for bot registration (POST and GET)
+// Serve index.html at the root URL
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// API endpoint for bot registration
 app.post('/api/register-bot', registerBot);
-app.get('/api/register-bot', registerBot);
 
 async function registerBot(req, res) {
   try {
-    // Use GET parameters for registration
-    const { ownerName, ownerNumber, botName, botType } = req.method === 'GET' ? req.query : req.body;
+    const { ownerName, ownerNumber, botName, botType } = req.body;
 
     if (!ownerName || !ownerNumber || !botName || !botType) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -39,27 +46,32 @@ async function registerBot(req, res) {
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    await db.collection('bots').add(newBot);
+    const docRef = await db.collection('bots').add(newBot);
+    console.log('Document written with ID: ', docRef.id);
 
-    res.status(200).json({ message: 'Bot registered successfully' });
+    res.status(200).json({ message: 'Bot registered successfully', botId: docRef.id });
   } catch (error) {
     console.error('Error registering bot:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      error: 'Internal server error', 
+      details: error.message,
+      code: error.code
+    });
   }
 }
 
-// API endpoint for GET request to retrieve bot info
+// API endpoint to retrieve bot info
 app.get('/api/get-bot', async (req, res) => {
-  const { Name, Number } = req.query;
+  const { name, number } = req.query;
 
-  if (!Name || !Number) {
+  if (!name || !number) {
     return res.status(400).json({ error: 'Missing required query parameters' });
   }
 
   try {
     const snapshot = await db.collection('bots')
-      .where('ownerName', '==', Name)
-      .where('ownerNumber', '==', Number)
+      .where('ownerName', '==', name)
+      .where('ownerNumber', '==', number)
       .get();
 
     if (snapshot.empty) {
@@ -70,7 +82,7 @@ app.get('/api/get-bot', async (req, res) => {
     return res.status(200).json({ message: 'Bot found', bot: botData });
   } catch (error) {
     console.error('Error fetching bot:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });
 
