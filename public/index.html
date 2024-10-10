@@ -3,88 +3,399 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kord AI Registration API Documentation</title>
+    <title>Bot Management Interface</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #0056b3;
+            --accent-color: #00c3ff;
+            --bg-color: #001f3f;
+            --text-color: #ffffff;
+            --error-color: #ff4136;
+            --success-color: #2ecc40;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            background-image: url('https://images.unsplash.com/photo-1635241161466-541f065683ba?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8dGVjaHxlbnwwfHx8fDE2MzQ1NjQ0MzA&ixlib=rb-1.2.1&q=80&w=1080');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
-            background-color: #f4f4f4;
         }
-        h1, h2 {
-            color: #333;
-        }
+
         .container {
-            max-width: 800px;
-            margin: auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        pre {
-            background: #eee;
-            padding: 10px;
-            border-radius: 4px;
-        }
-        .api-endpoint {
-            margin-bottom: 20px;
-        }
-        label {
-            font-weight: bold;
-        }
-        input, button {
+            max-width: 1000px;
             width: 100%;
-            padding: 10px;
+            background: rgba(0, 31, 63, 0.8);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: var(--accent-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .tab-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            margin: 5px;
+            min-width: 120px;
+        }
+
+        .tab:hover, .tab.active {
+            background-color: var(--primary-color);
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        form {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
             margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 5px;
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+
+        button, .bot-type-btn, .file-upload label {
+            display: inline-block;
+            padding: 12px 20px;
+            margin-top: 15px;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover, .bot-type-btn:hover, .file-upload label:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 195, 255, 0.4);
+        }
+
+        .bot-type-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .bot-type-btn {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .bot-type-btn.selected {
+            background-color: var(--accent-color);
+        }
+
+        #response {
+            background-color: rgba(0, 31, 63, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            border: 1px solid var(--accent-color);
+        }
+
+        .file-upload {
+            margin-top: 15px;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        #fileName {
+            margin-left: 10px;
+            font-style: italic;
+            color: var(--accent-color);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .success {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .error {
+            color: var(--error-color);
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Kord AI Registration API</h1>
-        <p>This API allows you to register bots and retrieve their information.</p>
+        <h1 class="fade-in">Bot Management Interface</h1>
 
-        <div class="api-endpoint">
-            <h2>Register a Bot</h2>
-            <p><strong>POST</strong> <code>/api/register-bot</code></p>
-            <pre><code>curl -X POST /api/register-bot \
--H "Content-Type: application/json" \
--d '{"ownerName": "JohnDoe", "ownerNumber": "1234567890", "botName": "ChatBot", "botType": "Chatbot"}'</code></pre>
-            <h3>Parameters:</h3>
-            <ul>
-                <li><label>ownerName:</label> The name of the bot owner.</li>
-                <li><label>ownerNumber:</label> The contact number of the bot owner.</li>
-                <li><label>botName:</label> The name of the bot.</li>
-                <li><label>botType:</label> The type of the bot.</li>
-            </ul>
+        <div class="tab-container fade-in">
+            <div class="tab active" data-tab="register">Register Bot</div>
+            <div class="tab" data-tab="get-info">Get Bot Info</div>
+            <div class="tab" data-tab="list-bots">List All Bots</div>
+            <div class="tab" data-tab="delete-bot">Delete Bot</div>
+            <div class="tab" data-tab="upload-file">Upload File</div>
         </div>
 
-        <div class="api-endpoint">
-            <h2>Register a Bot (GET)</h2>
-            <p><strong>GET</strong> <code>/api/register-bot</code></p>
-            <pre><code>curl "/api/register-bot?ownerName=JohnDoe&ownerNumber=1234567890&botName=ChatBot&botType=Chatbot"</code></pre>
-            <h3>Parameters:</h3>
-            <ul>
-                <li><label>ownerName:</label> The name of the bot owner.</li>
-                <li><label>ownerNumber:</label> The contact number of the bot owner.</li>
-                <li><label>botName:</label> The name of the bot.</li>
-                <li><label>botType:</label> The type of the bot.</li>
-            </ul>
+        <div id="register" class="content active fade-in">
+            <form id="registerForm">
+                <label for="ownerName">Owner Name:</label>
+                <input type="text" id="ownerName" required>
+                <label for="ownerNumber">Owner Number:</label>
+                <input type="text" id="ownerNumber" required>
+                <label for="botName">Bot Name:</label>
+                <input type="text" id="botName" required>
+                <label for="botType">Bot Type:</label>
+                <div class="bot-type-container">
+                    <button type="button" class="bot-type-btn" data-type="Kord - Ai V1">Kord - Ai V1</button>
+                    <button type="button" class="bot-type-btn" data-type="Kord - Ai V1.2">Kord - Ai V1.2</button>
+                    <button type="button" class="bot-type-btn" data-type="Kord - Ai V1.3">Kord - Ai V1.3</button>
+                    <button type="button" class="bot-type-btn" data-type="Kord - Ai V2">Kord - Ai V2</button>
+                </div>
+                <input type="hidden" id="botType" required>
+                <button type="submit">Register Bot</button>
+            </form>
         </div>
 
-        <div class="api-endpoint">
-            <h2>Retrieve Bot Information</h2>
-            <p><strong>GET</strong> <code>/api/get-bot</code></p>
-            <pre><code>curl "/api/get-bot?Name=JohnDoe&Number=1234567890"</code></pre>
-            <h3>Parameters:</h3>
-            <ul>
-                <li><label>Name:</label> The name of the bot owner.</li>
-                <li><label>Number:</label> The contact number of the bot owner.</li>
-            </ul>
+        <div id="get-info" class="content fade-in">
+            <form id="getBotForm">
+                <label for="getName">Owner Name:</label>
+                <input type="text" id="getName" required>
+                <label for="getNumber">Owner Number:</label>
+                <input type="text" id="getNumber" required>
+                <button type="submit">Get Bot Info</button>
+            </form>
         </div>
+
+        <div id="list-bots" class="content fade-in">
+            <button id="listBotsBtn">List All Bots</button>
+        </div>
+
+        <div id="delete-bot" class="content fade-in">
+            <form id="deleteBotForm">
+                <label for="botId">Bot ID:</label>
+                <input type="text" id="botId" required>
+                <label for="deletePassword">Password:</label>
+                <input type="password" id="deletePassword" required>
+                <button type="submit">Delete Bot</button>
+            </form>
+        </div>
+
+        <div id="upload-file" class="content fade-in">
+            <form id="uploadForm">
+                <div class="file-upload">
+                    <input type="file" id="fileInput" required>
+                    <label for="fileInput">Choose File</label>
+                    <span id="fileName"></span>
+                </div>
+                <button type="submit">Upload File</button>
+            </form>
+        </div>
+
+        <div id="response" class="fade-in"></div>
     </div>
+
+    <script>
+        const API_URL = 'https://kord-ai-db.onrender.com';
+        const responseDiv = document.getElementById('response');
+
+        function displayResponse(data, isError = false) {
+            if (typeof data === 'object') {
+                let formattedResponse = '';
+                for (const [key, value] of Object.entries(data)) {
+                    formattedResponse += `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}\n`;
+                }
+                responseDiv.textContent = formattedResponse;
+            } else {
+                responseDiv.textContent = data;
+            }
+            responseDiv.classList.add('fade-in');
+            responseDiv.classList.toggle('error', isError);
+            responseDiv.classList.toggle('success', !isError);
+        }
+
+        // Tab functionality
+        const tabs = document.querySelectorAll('.tab');
+        const contents = document.querySelectorAll('.content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Bot type selection
+        const botTypeButtons = document.querySelectorAll('.bot-type-btn');
+        const botTypeInput = document.getElementById('botType');
+
+        botTypeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                botTypeButtons.forEach(btn => btn.classList.remove('selected'));
+                button.classList.add('selected');
+                botTypeInput.value = button.dataset.type;
+            });
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const botData = {
+                ownerName: document.getElementById('ownerName').value,
+                ownerNumber: document.getElementById('ownerNumber').value,
+                botName: document.getElementById('botName').value,
+                botType: botTypeInput.value
+            };
+            try {
+                const response = await axios.post(`${API_URL}/api/register-bot`, botData);
+                displayResponse(response.data);
+            } catch (error) {
+                displayResponse(error.response.data, true);
+            }
+        });
+
+        document.getElementById('getBotForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('getName').value;
+            const number = document.getElementById('getNumber').value;
+            try {
+                const response = await axios.get(`${API_URL}/api/get-bot?name=${name}&number=${number}`);
+                displayResponse(response.data);
+            } catch (error) {
+                displayResponse(error.response.data, true);
+            }
+        });
+
+        document.getElementById('listBotsBtn').addEventListener('click', async () => {
+            try {
+                const response = await axios.get(`${API_URL}/api/list-bots`);
+                displayResponse(response.data);
+            } catch (error) {
+                displayResponse(error.response.data, true);
+            }
+        });
+
+        document.getElementById('deleteBotForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const botId = document.getElementById('botId').value;
+            const password = document.getElementById('deletePassword').value;
+            if (password !== 'Iyanu1234.db') {
+                displayResponse('Incorrect password. Bot deletion failed.', true);
+                return;
+            }
+            try {
+                const response = await axios.delete(`${API_URL}/api/delete-bot/${botId}`);
+                displayResponse(response.data);
+            } catch (error) {
+                displayResponse(error.response.data, true);
+            }
+        });
+
+        // File upload
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+
+        fileInput.addEventListener('change', (e) => {
+            fileName.textContent = e.target.files[0] ? e.target.files[0].name : '';
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await axios.post(`${API_URL}/api/upload-file`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                displayResponse(response.data);
+            } catch (error) {
+                displayResponse(error.response.data, true);
+            }
+        });
+    </script>
 </body>
 </html>
